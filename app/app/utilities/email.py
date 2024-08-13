@@ -40,6 +40,7 @@ def send_email(
     logging.info(JinjaTemplate(html_template))
     logging.info(settings.EMAILS_FROM_NAME)
     logging.info(settings.EMAILS_FROM_EMAIL)
+    logging.info(email_to)
     response = message.send(to=email_to, render=environment, smtp=smtp_options)
     logging.info(f"send email result: {response}")
 
