@@ -33,6 +33,8 @@ def send_email(
     environment["server_host"] = settings.SERVER_HOST
     environment["server_name"] = settings.SERVER_NAME
     environment["server_bot"] = settings.SERVER_BOT
+    logging.info(environment)
+    logging.info(smtp_options)
     response = message.send(to=email_to, render=environment, smtp=smtp_options)
     logging.info(f"send email result: {response}")
 
