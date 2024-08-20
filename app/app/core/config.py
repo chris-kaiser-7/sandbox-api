@@ -39,7 +39,6 @@ class Settings(BaseSettings):
         if isinstance(v, str) and len(v) == 0:
             return None
         return v
-
     # GENERAL SETTINGS
 
     MULTI_MAX: int = 20
@@ -47,6 +46,7 @@ class Settings(BaseSettings):
     # COMPONENT SETTINGS
     MONGO_DATABASE: str
     MONGO_DATABASE_URI: str
+    EMAIL_API_KEY: str
 
     SMTP_TLS: bool = True
     SMTP_PORT: int = 587

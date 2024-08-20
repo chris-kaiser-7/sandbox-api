@@ -3,11 +3,19 @@ from pathlib import Path
 from typing import Any, Dict
 
 import emails
-from emails.template import JinjaTemplate
+from jinja2 import Template
+from requests import post
 
 from app.core.config import settings
 from app.schemas import EmailContent, EmailValidation
 
+
+def render_email_template(*, template_name: str, context: dict[str, Any]) -> str:
+    template_str = (
+        Path(__file__).parent.parent / "email-templates" / "build" / template_name
+    ).read_text()
+    html_content = Template(template_str).render(context)
+    return html_content
 
 def send_email(
     email_to: str,
@@ -16,11 +24,6 @@ def send_email(
     environment: Dict[str, Any] = {},
 ) -> None:
     assert settings.EMAILS_ENABLED, "no provided configuration for email variables"
-    message = emails.Message(
-        subject=JinjaTemplate(subject_template),
-        html=JinjaTemplate(html_template),
-        mail_from=(settings.EMAILS_FROM_NAME, settings.EMAILS_FROM_EMAIL),
-    )
     smtp_options = {"host": settings.SMTP_HOST, "port": settings.SMTP_PORT}
     if settings.SMTP_TLS:
         # https://python-emails.readthedocs.io/en/latest/
@@ -33,15 +36,17 @@ def send_email(
     environment["server_host"] = settings.SERVER_HOST
     environment["server_name"] = settings.SERVER_NAME
     environment["server_bot"] = settings.SERVER_BOT
-    logging.info(environment)
-    logging.info(smtp_options)
-    logging.info(message)
-    logging.info(JinjaTemplate(subject_template))
-    logging.info(JinjaTemplate(html_template))
-    logging.info(settings.EMAILS_FROM_NAME)
-    logging.info(settings.EMAILS_FROM_EMAIL)
-    logging.info(email_to)
-    response = message.send(to=email_to, render=environment, smtp=smtp_options)
+    subject = Template(subject_template).render(environment)
+    html = Template(html_template).render(environment)
+
+    response = post( 
+  		"https://api.mailgun.net/v3/mail.typedex.dev/messages",
+  		auth=("api", settings.EMAIL_API_KEY),
+  		data={"from": "Chris Kaiser <chris@mail.typedex.dev>",
+  			"to": [email_to],
+  			"subject": subject,
+  			"html": html}) 
+
     logging.info(f"send email result: {response}")
 
 
