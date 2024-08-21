@@ -20,7 +20,7 @@ wait_seconds = 1
     after=after_log(logger, logging.WARN),
 )
 async def populate_db() -> None:
-    await init_db(MongoDatabase())
+    await init_db()
     # Place any code after this line to add any db population steps
 
 
