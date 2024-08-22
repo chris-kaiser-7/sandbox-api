@@ -39,7 +39,7 @@ def send_email(
     subject = Template(subject_template).render(environment)
     html = Template(html_template).render(environment)
 
-    response = post( 
+    response= post( 
   		"https://api.mailgun.net/v3/mail.typedex.dev/messages",
   		auth=("api", settings.EMAIL_API_KEY),
   		data={"from": "Chris Kaiser <chris@mail.typedex.dev>",
