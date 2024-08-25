@@ -7,7 +7,7 @@
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
 ARG PYTHON_VERSION=3.12.3
-FROM python:${PYTHON_VERSION}-slim as base
+FROM python:${PYTHON_VERSION}-slim AS base
 
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -17,21 +17,20 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Copy the source code into the container.
-COPY ./app/ /app/
-WORKDIR /app/
+WORKDIR /app
 
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
-ARG UID=10001
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    appuser
+# ARG UID=10001
+# RUN adduser \
+#     --disabled-password \
+#     --gecos "" \
+#     --home "/nonexistent" \
+#     --shell "/sbin/nologin" \
+#     --no-create-home \
+#     --uid "${UID}" \
+#     appuser
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
@@ -45,16 +44,22 @@ RUN adduser \
 # Switch to the non-privileged user to run the application.
 
 
-RUN python -m pip install hatch
+# RUN python -m pip install hatch 
 
-ENV HATCH_ENV_TYPE_VIRTUAL_PATH=.venv
-RUN hatch env prune
-RUN hatch env create production && pip install --upgrade setuptools
+# ENV HATCH_ENV_TYPE_VIRTUAL_PATH=.venv
+# RUN hatch env prune
+# RUN hatch env create production && pip install --upgrade setuptools
 
 # RUN python app/app/backend_pre_start.py
 # RUN python app/app/initial_data.py
 
+
+RUN --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    python -m pip install -r requirements.txt
+
 # USER appuser
+
+COPY . .
 
 # Expose the port that the application listens on.
 EXPOSE 8080
