@@ -4,7 +4,11 @@ from contextlib import asynccontextmanager
 
 from app.api.api_v1.api import api_router
 from app.core.config import settings
+from .backend_pre_start import main as prestart_main
+from .initial_data import main as initial_data_main
 
+prestart_main()
+initial_data_main()
 
 @asynccontextmanager
 async def app_init(app: FastAPI):
