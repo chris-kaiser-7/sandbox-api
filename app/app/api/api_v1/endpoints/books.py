@@ -18,18 +18,21 @@ router = APIRouter(
     tags=["books"]
 )
 
-# Read a book by name
+@router.get("/books/", response_model=list[Book])
+async def read_book(
+    page: int = 0
+) -> list[Book]:
+    return await crud.book.get_multi(page=page)
+
 @router.get("/books/{book_name}")
 async def read_book(
-    book_name: str,
-    current_user: Annotated[User, Depends(deps.get_current_active_user)],
+    book_name: str
 ) -> Book:
     found_book = await crud.book.get_by_name(name=book_name)
     if not found_book:
         raise HTTPException(status_code=404, detail="Book not found")
     return found_book
 
-# Create a new book
 @router.post("/books",response_model=Book)
 async def create_book(
     book: BookCreate,

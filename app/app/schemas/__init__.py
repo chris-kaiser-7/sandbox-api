@@ -15,3 +15,4 @@ from .emails import EmailContent, EmailValidation
 from .totp import NewTOTP, EnableTOTP
 from .book import BookCreate, BookUpdate
 from .assistant import AssistantCreate, AssistantUpdate
+from .subtype import SubtypeCreate, SubtypeGenerate, SubtypeUpdate

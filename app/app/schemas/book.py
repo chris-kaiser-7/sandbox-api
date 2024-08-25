@@ -1,6 +1,6 @@
 from typing import List
 from typing_extensions import Self
-from pydantic import BaseModel, model_validator, ConfigDict
+from pydantic import BaseModel, model_validator
 
 # Define a Pydantic model for the book
 class BookCreate(BaseModel):

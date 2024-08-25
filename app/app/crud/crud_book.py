@@ -24,4 +24,4 @@ class CRUDBook(CRUDBase[Book, BookCreate, BookCreate]):
         }
         return await self.engine.save(Book(**book))
 
-book = CRUDBook(Book)
+book : CRUDBook = CRUDBook(Book)

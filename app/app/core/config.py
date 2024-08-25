@@ -47,6 +47,9 @@ class Settings(BaseSettings):
     MONGO_DATABASE: str
     MONGO_DATABASE_URI: str
     EMAIL_API_KEY: str
+    OPENAI_API_KEY: str
+    OPENAI_MODEL: str = "gpt-4o"
+
 
     SMTP_TLS: bool = True
     SMTP_PORT: int = 587
