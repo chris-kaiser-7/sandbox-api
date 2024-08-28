@@ -25,8 +25,11 @@ class CRUDSubtype(CRUDBase[Subtype, SubtypeCreate, SubtypeUpdate]):
     #TODO: need get by book
 
     async def generate_children(self, *, db: AgnosticDatabase, obj_in: SubtypeGenerate) -> list[Subtype]:
-        book = crud_book.get_by_name(obj_in.book)
+        book = crud_book.get_by_name(name=obj_in.book)
         parent = self.get_by_name_and_book(name=obj_in.parent, book=obj_in.book)
+
+        book, parent = await gather(book, parent)
+
         if not book or not parent:
             return []
         if book.name not in self.created_assistants:
@@ -70,6 +73,8 @@ class CRUDSubtype(CRUDBase[Subtype, SubtypeCreate, SubtypeUpdate]):
                 #TODO: need better parser
                 parsed_response = "\n".join(response.split("\n")[1:-1])
 
+                # logging.info(parsed_response)
+
                 subtypes = json.loads(parsed_response) #TODO: somehow integrate a dynamic pydantic model here based on book fileds
 
                 #cap at 10 children (placeholder)
@@ -79,7 +84,7 @@ class CRUDSubtype(CRUDBase[Subtype, SubtypeCreate, SubtypeUpdate]):
                 for subtype in subtypes[:remaining_children]:
                     #dynamicly generate pydandic model here?
                     if "name" not in subtype:
-                        logging.ERROR(f'invalid parse for {subtype}')
+                        logging.info(f'invalid parse for {subtype}')
                         continue
 
                     # Handle duplicate types
@@ -91,16 +96,15 @@ class CRUDSubtype(CRUDBase[Subtype, SubtypeCreate, SubtypeUpdate]):
                     # 10 children takes about 0.03 seconds of waiting
                     empty_check = await self.engine.count(Subtype, Subtype.name == subtype["name"], Subtype.book == book.name)
                     if empty_check != 0:
-                        logging.ERROR('duplicate type')
+                        logging.info('duplicate type')
                         continue
 
                     #TODO: see if it is possable to do $push in odmantic engine and not lose performance. also consider doing a bulk patch
                     query = { "type": obj_in.parent }
                     update = {"$push": {"children": subtype["name"]}}
-                    update_task = db["subtype"].update_one(query, update)
+                    update_task = await db["subtype"].update_one(query, update)
 
-                    new_ancestry = parent.ancestry
-                    new_ancestry.append(obj_in.parent)
+                    new_ancestry = [*parent.ancestry, obj_in.parent] 
 
                     properties = {}
                     for field in book.fields:
@@ -121,6 +125,8 @@ class CRUDSubtype(CRUDBase[Subtype, SubtypeCreate, SubtypeUpdate]):
                 completed_tasks = await gather(*db_tasks)
                 db_subtypes.extend(completed_tasks)
                 break
+        logging.info(db_subtypes)
+        logging.info(type(db_subtypes))
         return db_subtypes
 
 
