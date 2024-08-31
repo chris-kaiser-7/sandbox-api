@@ -9,14 +9,14 @@ from app.api import deps
 
 router = APIRouter()
 
-@router.get("/subtypes/", response_model=list[models.Subtype])
+@router.get("/", response_model=list[models.Subtype])
 async def get_all_subtypes(
     *,
     page: int = 0,
 ) -> Any:
     return await crud.subtype.get_multi(page=page)
 
-@router.get("/subtypes/{subtype_book}/{subtype_name}", response_model=models.Subtype)
+@router.get("/{subtype_book}/{subtype_name}", response_model=models.Subtype)
 async def get_subtype(
     *,
     subtype_name: str,
@@ -27,7 +27,7 @@ async def get_subtype(
         raise HTTPException(status_code=404, detail="Subtype not found")
     return subtype
 
-@router.post("/subtypes/", response_model=models.Subtype)
+@router.post("/", response_model=models.Subtype)
 async def create_subtype(
     *,
     obj_in: schemas.SubtypeCreate,
@@ -46,7 +46,7 @@ async def create_subtype(
     created_assistant = await crud.subtype.create(obj_in=obj_in)
     return created_assistant
 
-@router.post("/subtypes_generate/", response_model=list[models.Subtype])
+@router.post("/generate/", response_model=list[models.Subtype])
 async def create_subtype(
     *,
     obj_in: schemas.SubtypeGenerate,

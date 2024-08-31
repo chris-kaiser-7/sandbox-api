@@ -8,16 +8,15 @@ from app.api import deps
 router = APIRouter()
 
 # Endpoint to retrieve all Assistants
-@router.get("/assistants/", response_model=List[models.Assistant])
+@router.get("/", response_model=List[models.Assistant])
 async def get_all_assistants(
     *,
     page: int = 0,
-    current_user: Annotated[models.User, Depends(deps.get_current_active_user)],
 ):
     return await crud.assistant.get_multi(page=page)
 
 # Endpoint to retrieve a specific Assistant by ID
-@router.get("/assistants/{assistant_id}", response_model=models.Assistant)
+@router.get("/{assistant_id}", response_model=models.Assistant)
 async def get_assistant(
     *,
     assistant_name: str,
@@ -29,7 +28,7 @@ async def get_assistant(
     return assistant
 
 # Endpoint to add a new Assistant
-@router.post("/assistants/", response_model=models.Assistant)
+@router.post("/", response_model=models.Assistant)
 async def create_assistant(
     *,
     obj_in: schemas.AssistantCreate,

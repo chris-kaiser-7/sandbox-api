@@ -100,7 +100,7 @@ class CRUDSubtype(CRUDBase[Subtype, SubtypeCreate, SubtypeUpdate]):
                         continue
 
                     #TODO: see if it is possable to do $push in odmantic engine and not lose performance. also consider doing a bulk patch
-                    query = { "type": obj_in.parent }
+                    query = { "name": obj_in.parent }
                     update = {"$push": {"children": subtype["name"]}}
                     update_task = await db["subtype"].update_one(query, update)
 
